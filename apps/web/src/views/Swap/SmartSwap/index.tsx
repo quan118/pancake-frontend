@@ -86,6 +86,10 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
   const inputCurrency = useCurrency(inputCurrencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
 
+  console.log("[SmartSwapForm] inputCurrency:", inputCurrency);
+  console.log("[SmartSwapForm] outputCurrency:", outputCurrency);
+  console.log("[SmartSwapForm] independentField:", independentField);
+  console.log("[SmartSwapForm] typedValue:", typedValue);
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.INPUT]: inputCurrency ?? undefined,
@@ -129,12 +133,15 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
     stableSwapInputError,
   })
 
+
   const {
     wrapType,
     execute: onWrap,
     inputError: wrapInputError,
   } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
+
+  console.log("[SmartSwapForm] wrapType:", wrapType);
 
   const parsedAmounts = showWrap
     ? {
@@ -262,9 +269,12 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
 
   const [onPresentSettingsModal] = useModal(<SettingsModal mode={SettingsMode.SWAP_LIQUIDITY} />)
 
+  console.log('[SmartSwapForm] tradeInfo:', tradeInfo);
+  console.log('[SmartSwapForm] mmTradeInfo:', mmTradeInfo);
+
   return (
     <>
-      <MMAndAMMDealDisplay
+      {/* <MMAndAMMDealDisplay
         independentField={independentField}
         isMMBetter={isMMBetter}
         tradeWithStableSwap={tradeWithStableSwap}
@@ -277,15 +287,16 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
             : mmRFQTrade?.error?.message || mmOrderBookTrade?.inputError
         }
         rfqId={mmRFQTrade?.rfqId}
-      />
+      /> */}
       <CurrencyInputHeader
         title={t('Swap')}
-        subtitle={t('Trade tokens in an instant')}
+        subtitle={t('Trade tokens in an instant') + '123'}
         hasAmount={hasAmount}
         onRefreshPrice={onRefreshPrice}
       />
       <Wrapper id="swap-page" style={{ minHeight: '412px' }}>
         <AutoColumn gap="sm">
+          {/* Token In */}
           <CurrencyInputPanel
             label={independentField === Field.OUTPUT && !showWrap && tradeInfo ? t('From (estimated)') : t('From')}
             value={formattedAmounts[Field.INPUT]}
@@ -303,12 +314,15 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
             showUSDPrice={!!tokenMap[chainId]?.[inputCurrencyId] || inputCurrencyId === NATIVE[chainId]?.symbol}
             commonBasesType={CommonBasesType.SWAP_LIMITORDER}
           />
+
+          {/* Risk Level Indicator */}
           {isAccessTokenSupported && inputCurrency?.isToken && (
             <Box>
               <AccessRisk token={inputCurrency} />
             </Box>
           )}
 
+            {/* Switch Button */}
           <AutoColumn justify="space-between">
             <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
               <SwapUI.SwitchButton
@@ -326,6 +340,8 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
               ) : null}
             </AutoRow>
           </AutoColumn>
+
+          {/* Token Out */}
           <CurrencyInputPanel
             value={formattedAmounts[Field.OUTPUT]}
             onUserInput={handleTypeOutput}
@@ -341,6 +357,7 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
             commonBasesType={CommonBasesType.SWAP_LIMITORDER}
           />
 
+          {/* Risk Level Indicator */}
           {isAccessTokenSupported && outputCurrency?.isToken && (
             <Box>
               <AccessRisk token={outputCurrency} />
@@ -388,7 +405,7 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
               price={
                 (Boolean(tradeInfo) || Boolean(mmTradeInfo)) && (
                   <>
-                    <SwapUI.InfoLabel>{t('Price')}</SwapUI.InfoLabel>
+                    <SwapUI.InfoLabel>{t('Price') + '123'}</SwapUI.InfoLabel>
                     {isLoading ? (
                       <Skeleton width="100%" ml="8px" height="24px" />
                     ) : (
@@ -404,6 +421,7 @@ export const SmartSwapForm: React.FC<{ handleOutputSelect: (newCurrencyOutput: C
           )}
         </AutoColumn>
 
+        {/* Swap Button */}
         <Box mt="0.25rem">
           {!tradeWithStableSwap &&
           !v2Trade &&

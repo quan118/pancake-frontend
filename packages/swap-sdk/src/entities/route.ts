@@ -12,13 +12,16 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
   public constructor(pairs: Pair[], input: TInput, output: TOutput) {
     invariant(pairs.length > 0, 'PAIRS')
     const chainId: number = pairs[0].chainId
+    // all pairs must have the same chain id
     invariant(
       pairs.every((pair) => pair.chainId === chainId),
       'CHAIN_IDS'
     )
 
     const wrappedInput = input.wrapped
+    // the first pair must contains the input token
     invariant(pairs[0].involvesToken(wrappedInput), 'INPUT')
+    // the last pair must contains the output token
     invariant(typeof output === 'undefined' || pairs[pairs.length - 1].involvesToken(output.wrapped), 'OUTPUT')
 
     const path: Token[] = [wrappedInput]
@@ -47,6 +50,7 @@ export class Route<TInput extends Currency, TOutput extends Currency> {
           : new Price(pair.reserve1.currency, pair.reserve0.currency, pair.reserve1.quotient, pair.reserve0.quotient)
       )
     }
+
     const reduced = prices.slice(1).reduce((accumulator, currentValue) => accumulator.multiply(currentValue), prices[0])
     return (this._midPrice = new Price(this.input, this.output, reduced.denominator, reduced.numerator))
   }

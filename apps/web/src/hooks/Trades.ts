@@ -33,10 +33,12 @@ export function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): P
     return [...common, ...additionalA, ...additionalB]
   }, [chainId, tokenA, tokenB])
 
+  console.log("[useAllCommonPairs] bases:", bases); // [WBNB, CAKE, BUSD, USDT, ETH, ...] - 7 items
   const basePairs: [Token, Token][] = useMemo(
     () => flatMap(bases, (base): [Token, Token][] => bases.map((otherBase) => [base, otherBase])),
     [bases],
   )
+  console.log("[useAllCommonPairs] basePairs:", basePairs); // [[WBNB, WBNB], [WBNB, CAKE], [WBNB, BUSD], ...] - 49 items
 
   const allPairCombinations: [Token, Token][] = useMemo(
     () =>
@@ -53,7 +55,7 @@ export function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): P
           ]
             .filter((tokens): tokens is [Token, Token] => Boolean(tokens[0] && tokens[1]))
             .filter(([t0, t1]) => t0.address !== t1.address)
-            .filter(([tokenA_, tokenB_]) => {
+            .filter(([tokenA_, tokenB_]) => { // some tokens only can be swapped via certain pairs. This filter handle these tokens
               if (!chainId) return true
               const customBases = CUSTOM_BASES[chainId]
 
@@ -73,6 +75,7 @@ export function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): P
 
   const allPairs = usePairs(allPairCombinations)
 
+  console.log("[useAllCommonPairs] allPairs:", allPairs);
   // only pass along valid pairs, non-duplicated pairs
   return useMemo(
     () =>
@@ -99,10 +102,12 @@ export function useTradeExactIn(
   currencyAmountIn?: CurrencyAmount<Currency>,
   currencyOut?: Currency,
 ): Trade<Currency, Currency, TradeType> | null {
+  // get all allowed pairs, include there reserve amount in pool
   const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut)
 
+  console.log("[useTradeExactIn] allowedPairs:", allowedPairs);
   const [singleHopOnly] = useUserSingleHopOnly()
-
+  console.log("[useTradeExactIn] singleHopOnly:", singleHopOnly);
   return useMemo(() => {
     if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
       if (singleHopOnly) {

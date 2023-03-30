@@ -14,10 +14,10 @@ import useStableTradeExactOut from './useStableTradeExactOut'
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedStableSwapInfo(
-  independentField: Field,
-  typedValue: string,
-  inputCurrency: Currency | undefined,
-  outputCurrency: Currency | undefined,
+  independentField: Field, // input field
+  typedValue: string, // amount
+  inputCurrency: Currency | undefined, // name, token, symbol, ...
+  outputCurrency: Currency | undefined, // name, token, symbol, ...
 ): {
   currencies: { [field in Field]?: Currency }
   currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
@@ -30,6 +30,7 @@ export function useDerivedStableSwapInfo(
 
   const to: string | null = account ?? null
 
+  // balance input token, output token
   const relevantTokenBalances = useCurrencyBalances(
     account ?? undefined,
     useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency]),
